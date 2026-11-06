@@ -5,7 +5,6 @@ import yt_dlp
 
 TITLE_FALLBACK: Final[str] = 'Unknown Title'
 DURATION_FALLBACK: Final[str] = 'Unknown Duration'
-SIZE_FALLBACK: Final[int] = 0
 
 SHARED_OPTIONS: Final[dict[Any, Any]] = {
     'quiet': True,
@@ -48,9 +47,8 @@ def get_info(url: str) -> dict:
 def parse_info(info: dict) -> ParsedVideoInfo:
     title = info.get('title', TITLE_FALLBACK)
     duration = info.get('duration_string', DURATION_FALLBACK)
-    size = info.get('filesize', info.get('filesize_approx', SIZE_FALLBACK))
 
-    return ParsedVideoInfo(title=title, duration=duration, size=size)
+    return ParsedVideoInfo(title=title, duration=duration)
 
 
 def get_content_format() -> ContentFormat:
@@ -64,11 +62,12 @@ def get_content_format() -> ContentFormat:
 def is_empty_info(info: ParsedVideoInfo) -> bool:
     title = info.get('title')
     duration = info.get('duration')
-    size = info.get('size')
 
-    return (title is TITLE_FALLBACK) and (duration is DURATION_FALLBACK) and (size is SIZE_FALLBACK)
+    return (title is TITLE_FALLBACK) and (duration is DURATION_FALLBACK)
 
 def validate_url(url: str) -> bool:
+    print('Searching...')
+
     if not url:
         return False
 
@@ -77,7 +76,7 @@ def validate_url(url: str) -> bool:
     if is_empty_info(info):
         return False
 
-    print(f'URL is valid. Found: {info.get('title')}')
+    print(f'Found - {info.get('title')} ({info.get('duration')})\n')
     return True
 
 
@@ -98,7 +97,6 @@ def download_with_options(url: str, content_format: ContentFormat):
 class ParsedVideoInfo(TypedDict):
     title: str
     duration: str
-    size: int
 
 
 class ContentFormat(Enum):
